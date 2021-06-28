@@ -1,0 +1,9 @@
+name: wallet_sdk
+author: Fuse Network <hello@fuse.io>
+version: 0.2.4+23
+homepage: https://github.com/fuseio/wallet_core
+description: Fuse wallet core Dart library to interact with Ethereum based networks and APIs.
+environment:
+  sdk: ">=2.2.2 <3.0.0"
+dependencies:
+  web3dart: ^1.2.3
