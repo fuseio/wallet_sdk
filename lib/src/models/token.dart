@@ -1,10 +1,11 @@
+import 'package:get_it/get_it.dart';
 import 'package:wallet_sdk/src/constants/token_details.dart';
 
 import '../transports/token.dart';
 import './token_details.dart';
 
 class Token extends TokenDetails {
-  static TokenTransport _tokenTransport = new Web3TokenTransport();
+  TokenTransport _tokenTransport = GetIt.I.get<TokenTransport>();
 
   Token(String address, String name, String symbol, int decimals) : super(address, name, symbol, decimals);
 
@@ -19,7 +20,9 @@ class Token extends TokenDetails {
     if (TokenDetails.isNativeToken(tokenAddress)) {
       return Token.fromTokenDetails(nativeTokenDetails);
     }
-    TokenDetails tokenDetails = await _tokenTransport.fetchTokenDetails(tokenAddress);
+    
+    TokenTransport tokenTransport = GetIt.I.get<TokenTransport>();
+    TokenDetails tokenDetails = await tokenTransport.fetchTokenDetails(tokenAddress);
     return Token.fromTokenDetails(tokenDetails);
   }
 
