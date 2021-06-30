@@ -1,11 +1,31 @@
+import 'package:wallet_sdk/src/constants/token_details.dart';
 
-class Token {
-  final String address;
-  final String name;
-  final  String symbol;
-  final int decimals;
+import '../transports/token.dart';
+import './token_details.dart';
 
-  Token(this.address, this.name, this.symbol, this.decimals);
+class Token extends TokenDetails {
+  static TokenTransport _tokenTransport = new Web3TokenTransport();
+
+  Token(String address, String name, String symbol, int decimals) : super(address, name, symbol, decimals);
+
+  Token.fromTokenDetails(TokenDetails tokenDetails) : super(tokenDetails.address, tokenDetails.name, tokenDetails.symbol, tokenDetails.decimals);
+
+  Future<TokenAmount> fetchBalance(String accountAddress) async {
+    var value = await _tokenTransport.fetchTokenBalance(accountAddress, this.address);
+    return new TokenAmount.fromToken(value, this);
+  }
+
+  static Future<Token> fetchToken(String tokenAddress) async {
+    if (TokenDetails.isNativeToken(tokenAddress)) {
+      return Token.fromTokenDetails(nativeTokenDetails);
+    }
+    TokenDetails tokenDetails = await _tokenTransport.fetchTokenDetails(tokenAddress);
+    return Token.fromTokenDetails(tokenDetails);
+  }
+
+  bool isNative() {
+    return TokenDetails.isNativeToken(this.address);
+  }
 }
 
 class TokenAmount {
