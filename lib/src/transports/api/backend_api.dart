@@ -2,12 +2,14 @@ import 'dart:convert';
 
 import 'package:http/http.dart';
 
-const String API_BASE_URL = 'https://studio.fuse.io/api';
+// const String API_baseUrl_URL = 'https://studio.fuse.io/api';
 
-abstract class ApiTransport {
-  String _base = API_BASE_URL;
-  Client _client = new Client();
-  String _jwtToken = '';
+abstract class BackendApi {
+  final String _baseUrl;
+  final String _jwtToken;
+  final Client _client;
+
+  BackendApi(this._baseUrl, this._jwtToken, this._client);
 
   Map<String, dynamic> responseHandler(Response response) {
     print('response: ${response.statusCode}, ${response.reasonPhrase}');
@@ -17,7 +19,6 @@ abstract class ApiTransport {
         return obj;
       case 401:
         throw 'Error! Unauthorized';
-        break;
       default:
         throw 'Error! status: ${response.statusCode}, reason: ${response.reasonPhrase}';
     }
@@ -26,12 +27,12 @@ abstract class ApiTransport {
   Future<Map<String, dynamic>> get(String endpoint, {bool auth = false}) async {
     print('GET $endpoint');
     Response response;
-    String uri = '$_base/$endpoint';
+    String uri = '$_baseUrl/$endpoint';
     if (auth) {
-      response = await _client.get(uri,
+      response = await _client.get(Uri.parse(uri),
           headers: {"Authorization": "Bearer $_jwtToken"});
     } else {
-      response = await _client.get(uri);
+      response = await _client.get(Uri.parse(uri));
     }
     return responseHandler(response);
   }
@@ -40,17 +41,17 @@ abstract class ApiTransport {
       {dynamic body, bool auth = false }) async {
     print('POST $endpoint $body');
     Response response;
-    String uri = '$_base/$endpoint';
+    String uri = '$_baseUrl/$endpoint';
     body = body == null ? body : json.encode(body);
     if (auth) {
-      response = await _client.post(uri,
+      response = await _client.post(Uri.parse(uri),
           headers: {
             "Authorization": "Bearer $_jwtToken",
             "Content-Type": 'application/json'
           },
           body: body);
     } else {
-      response = await _client.post(uri,
+      response = await _client.post(Uri.parse(uri),
           body: body, headers: {"Content-Type": 'application/json'});
     }
     return responseHandler(response);
@@ -60,17 +61,17 @@ abstract class ApiTransport {
       {dynamic body, bool auth = false }) async {
     print('POST $endpoint $body');
     Response response;
-    String uri = '$_base/$endpoint';
+    String uri = '$_baseUrl/$endpoint';
     body = body == null ? body : json.encode(body);
     if (auth) {
-      response = await _client.put(uri,
+      response = await _client.put(Uri.parse(uri),
           headers: {
             "Authorization": "Bearer $_jwtToken",
             "Content-Type": 'application/json'
           },
           body: body);
     } else {
-      response = await _client.put(uri,
+      response = await _client.put(Uri.parse(uri),
           body: body, headers: {"Content-Type": 'application/json'});
     }
     return responseHandler(response);

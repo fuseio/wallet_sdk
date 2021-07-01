@@ -1,6 +1,5 @@
 import 'package:get_it/get_it.dart';
 import 'package:web3dart/web3dart.dart';
-import 'package:http/http.dart';
 
 import '../utils/abi.dart';
 import '../models/token_details.dart';
@@ -14,9 +13,8 @@ abstract class TokenTransport {
 
 
 class Web3TokenTransport extends TokenTransport {
-  // Web3Client _client = new Web3Client(RPC_URL, new Client());
   Web3Client _client = GetIt.I.get<Web3Client>();
-
+  
   @override
   Future<BigInt> fetchTokenBalance(String accountAddress, String tokenAddress) async {
     List<dynamic> params = [EthereumAddress.fromHex(accountAddress)];

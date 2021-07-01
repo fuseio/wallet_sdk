@@ -33,10 +33,10 @@ class Token extends TokenDetails {
 
 class TokenAmount {
   
-  BigInt value;
-  Token token;
+  late final BigInt value;
+  late final TokenDetails token;
 
-  TokenAmount.fromToken(dynamic amount, Token token) {
+  TokenAmount.fromToken(dynamic amount, TokenDetails token) {
     BigInt parsedAmount;
     if (amount is BigInt) {
       parsedAmount = amount;
