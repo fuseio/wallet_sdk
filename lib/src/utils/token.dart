@@ -65,12 +65,7 @@ Future<List<dynamic>> _readFromContract(String contractName,
 void main() async {
   const address = "0x249BE57637D8B013Ad64785404b24aeBaE9B098B";
   Token t = await fetchToken(address);
-  // Token t = new Token(address, map['name'], map['symbol'], map['decimals'].toInt());
   var a = await getTokenBalance("0xD418c5d0c4a3D87a6c555B7aA41f13EF87485Ec6", t);
-  print(a);
   var b = await getTokenDetails("0x249BE57637D8B013Ad64785404b24aeBaE9B098B");
-  print(b);
   print(await getBalance("0xD418c5d0c4a3D87a6c555B7aA41f13EF87485Ec6"));
-  // return;
-  // exit();
 }
