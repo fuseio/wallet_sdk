@@ -1,6 +1,6 @@
 
 
-import 'package:get_it/get_it.dart';
+import 'package:wallet_sdk/src/di.dart';
 import 'package:wallet_sdk/src/models/token.dart';
 import 'package:wallet_sdk/src/models/token_details.dart';
 import 'package:wallet_sdk/src/transports/wallet.dart';
@@ -25,7 +25,7 @@ class WalletDetails {
 }
 
 class Wallet extends WalletDetails {
-  static WalletTransport _walletTransport =  GetIt.I.get<WalletTransport>();
+  static WalletTransport _walletTransport =  getIt<WalletTransport>();
   Wallet(String walletAddress, String phoneNumnber, WalletModules walletModules) : super(walletAddress, phoneNumnber, walletModules);
 
   static Future<Wallet> fetchWallet(String walletAddress) async {

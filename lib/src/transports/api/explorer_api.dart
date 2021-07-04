@@ -2,39 +2,35 @@ library explorer_api;
 
 import 'dart:async';
 
-import 'package:http/http.dart';
+import 'package:dio/dio.dart';
+import 'package:injectable/injectable.dart';
 import 'package:wallet_sdk/wallet_sdk.dart';
 
-import 'api.dart';
+@injectable
+class ExplorerApi {
+  Dio dio;
 
-class ExplorerApi extends Api {
-  final String _base;
-  final String _apiKey;
-  final Client _client;
-
-  ExplorerApi(this._base, this._apiKey, this._client);
-
-  Future<Map<String, dynamic>> _get(String endpoint) async {
-    Response response;
-    print('$_base$endpoint');
-    print(_client);
-    if ([null, ''].contains(_apiKey)) {
-      response = await _client.get(Uri.parse('$_base$endpoint'));
-    } else {
-      response = await _client.get(Uri.parse('$_base$endpoint&apikey=$_apiKey'));
+  ExplorerApi(
+    this.dio,
+    @factoryParam String? base,
+    @factoryParam String? apiKey,
+  ) {
+    if (apiKey != null) {
+      dio.options.queryParameters = Map.from({'apiKey': apiKey});
     }
-    return responseHandler(response);
+    dio.options.baseUrl = base!;
+    dio.options.headers = Map.from({"Content-Type": 'application/json'});
   }
-
 
   Future<BigInt> fetchTokenBalance(
     String tokenAddress,
     String accountAddress,
   ) async {
     try {
-      Map<String, dynamic> resp = await _get(
-          '?module=account&action=tokenbalance&contractaddress=$tokenAddress&address=$accountAddress');
-      return BigInt.from(num.parse(resp['result']));
+      Response response = await dio.get(
+        '?module=account&action=tokenbalance&contractaddress=$tokenAddress&address=$accountAddress',
+      );
+      return BigInt.from(num.parse(response.data['result']));
     } catch (e) {
       throw 'Error! Get token balance failed for - accountAddress: $accountAddress --- $e';
     }
@@ -42,29 +38,32 @@ class ExplorerApi extends Api {
 
   Future<TokenDetails> fetchTokenDetails(String tokenAddress) async {
     try {
-      Map<String, dynamic> resp = await _get(
-          '?module=token&action=getToken&contractaddress=$tokenAddress');
-      if (resp['message'] == 'OK' && resp['status'] == '1') {
+      Response response = await dio.get(
+        '?module=token&action=getToken&contractaddress=$tokenAddress',
+      );
+      if (response.data['message'] == 'OK' && response.data['status'] == '1') {
         Map<String, dynamic> json = Map.from({
-          ...resp['result'],
+          ...response.data['result'],
           'tokenAddress': tokenAddress,
-          'decimals': int.parse(resp['result']['decimals'])
+          'decimals': int.parse(response.data['result']['decimals'])
         });
         return TokenDetails.fromJson(json);
       }
-      throw 'Error! Get token failed $tokenAddress - ${resp['message']}';
+      throw 'Error! Get token failed $tokenAddress - ${response.data['message']}';
     } catch (e) {
       throw 'Error! Get token failed $tokenAddress - $e';
     }
   }
 
-  Future<Map<TokenDetails, TokenAmount>> fetchTokenBalances(String address) async {
+  Future<Map<TokenDetails, TokenAmount>> fetchTokenBalances(
+      String address) async {
     try {
-      Map<TokenDetails, TokenAmount> balances = new Map<TokenDetails, TokenAmount>();
-      Map<String, dynamic> resp =
-          await _get('?module=account&action=tokenlist&address=$address');
-      if (resp['message'] == 'OK' && resp['status'] == '1') {
-        for (dynamic json in resp['result']) {
+      Map<TokenDetails, TokenAmount> balances =
+          new Map<TokenDetails, TokenAmount>();
+      Response response =
+          await dio.get('?module=account&action=tokenlist&address=$address');
+      if (response.data['message'] == 'OK' && response.data['status'] == '1') {
+        for (dynamic json in response.data['result']) {
           TokenDetails token = TokenDetails.fromJson({
             ...json,
             "tokenAddress": json['contractAddress'].toLowerCase(),
