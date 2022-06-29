@@ -1,16 +1,13 @@
-
-
 import 'package:test/test.dart';
 import 'package:wallet_sdk/src/constants/addresses.dart';
+import 'package:wallet_sdk/src/di.dart';
 import 'package:wallet_sdk/src/models/token.dart';
-import 'package:wallet_sdk/src/config.dart';
 
 const FUSD_TOKEN_ADDRESS = '0x249BE57637D8B013Ad64785404b24aeBaE9B098B';
 const WALLET_ADDRESS = '0xD8E4e3cAa4929487cca3622952e4CF6c37d983ce';
 
 void main() {
-
-  setup();
+  configureDependencies();
   test('fetch token', () async {
     Token token = await Token.fetchToken(FUSD_TOKEN_ADDRESS);
     expect(token.address, FUSD_TOKEN_ADDRESS);

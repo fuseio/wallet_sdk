@@ -1,38 +1,72 @@
-import 'package:get_it/get_it.dart';
 import 'package:wallet_sdk/src/constants/token_details.dart';
+import 'package:wallet_sdk/src/di.dart';
 
 import '../transports/token.dart';
 import './token_details.dart';
 
 class Token extends TokenDetails {
-  TokenTransport _tokenTransport = GetIt.I.get<TokenTransport>();
+  TokenTransport _tokenTransport = getIt<TokenTransport>();
 
-  Token(String address, String name, String symbol, int decimals) : super(address, name, symbol, decimals);
+  Token(
+    String address,
+    String name,
+    String symbol,
+    int decimals,
+  ) : super(
+          address,
+          name,
+          symbol,
+          decimals,
+        );
 
-  Token.fromTokenDetails(TokenDetails tokenDetails) : super(tokenDetails.address, tokenDetails.name, tokenDetails.symbol, tokenDetails.decimals);
+  Token.fromTokenDetails(
+    TokenDetails tokenDetails,
+  ) : super(
+          tokenDetails.address,
+          tokenDetails.name,
+          tokenDetails.symbol,
+          tokenDetails.decimals,
+        );
 
-  Future<TokenAmount> fetchBalance(String accountAddress) async {
-    var value = await _tokenTransport.fetchTokenBalance(accountAddress, this.address);
-    return new TokenAmount.fromToken(value, this);
+  Future<TokenAmount> fetchBalance(
+    String accountAddress,
+  ) async {
+    var value = await _tokenTransport.fetchTokenBalance(
+      accountAddress,
+      this.address,
+    );
+    return new TokenAmount.fromToken(
+      value,
+      this,
+    );
   }
 
   static Future<Token> fetchToken(String tokenAddress) async {
-    if (TokenDetails.isNativeToken(tokenAddress)) {
-      return Token.fromTokenDetails(nativeTokenDetails);
+    if (TokenDetails.isNativeToken(
+      tokenAddress,
+    )) {
+      return Token.fromTokenDetails(
+        nativeTokenDetails,
+      );
     }
-    
-    TokenTransport tokenTransport = GetIt.I.get<TokenTransport>();
-    TokenDetails tokenDetails = await tokenTransport.fetchTokenDetails(tokenAddress);
-    return Token.fromTokenDetails(tokenDetails);
+
+    TokenTransport tokenTransport = getIt<TokenTransport>();
+    TokenDetails tokenDetails = await tokenTransport.fetchTokenDetails(
+      tokenAddress,
+    );
+    return Token.fromTokenDetails(
+      tokenDetails,
+    );
   }
 
   bool isNative() {
-    return TokenDetails.isNativeToken(this.address);
+    return TokenDetails.isNativeToken(
+      this.address,
+    );
   }
 }
 
 class TokenAmount {
-  
   late final BigInt value;
   late final TokenDetails token;
 
@@ -60,7 +94,4 @@ class TokenAmount {
   String toString() {
     return getAmount().toString();
   }
-
-
-
 }
